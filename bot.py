@@ -3,6 +3,8 @@ import logging
 import discord
 from discord import client
 from discord.ext import commands
+from discord.ext.commands import bot
+
 from attendance import Member, table_init, get_all_attendance_info, scoreboard
 
 from config import timezone
@@ -23,7 +25,7 @@ client.remove_command('help')
 table_init
 
 
-@client.event
+@bot.event
 async def on_reday():
     activity = discord.Game(name="도움말 명령어는 /도움")
     await  client.change_presence(activity=activity)
