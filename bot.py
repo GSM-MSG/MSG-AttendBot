@@ -32,12 +32,12 @@ async def on_reday():
     logger.info("Attend Bot is Ready")
 
 
-@client.check
+@bot.check
 async def globally_block_dms(ctx):
     return ctx.guild is not None
 
 
-@client.command(name="등록")
+@bot.command(name="등록")
 async def register(ctx):
     member = Member(ctx.author)
     logger.info(f"Querying user (id={member.id}, guild={member.guild})'s AttendBot...")
@@ -46,7 +46,7 @@ async def register(ctx):
         return
 
 
-@client.command(name="도움")
+@bot.command(name="도움")
 async def help_message(ctx):
     await ctx.author.send("```" +
                           "기본\n" +
