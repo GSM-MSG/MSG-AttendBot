@@ -19,4 +19,9 @@ async def testHello(ctx):
     await ctx.channel.send(f'{ctx.message.author.mention}님, 나도 안녕!', reference=ctx.message)
 
 
+@bot.command(name="데일리")
+async def daily(ctx):
+    dm_channel = await ctx.message.author.create_dm()
+    await dm_channel.send(f'{ctx.message.author.mention}님, 데일리 적고 공유해주세요!')
+
 bot.run(token)
