@@ -13,6 +13,10 @@ token = os.getenv('AttendBot_TOKEN')
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
 
+
+@bot.command(name="안녕")
+async def testHello(ctx):
+    await ctx.channel.send(f'{ctx.message.author.mention}님, 나도 안녕!', reference=ctx.message)
+
+
 bot.run(token)
-
-
