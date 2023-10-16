@@ -1,16 +1,15 @@
-# This is a sample Python script.
+import discord
+from discord.ext import commands
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+intents = discord.Intents.default()
+intents.typing = False
+# intents.messages_content = True
+intents.messages = True
+bot = commands.Bot(command_prefix="/", intents=intents)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+@bot.event
+async def on_ready():
+    print(f'{bot.user.name} has connected to Discord!')
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+bot.run('TOKEN')
