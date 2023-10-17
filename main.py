@@ -1,15 +1,40 @@
 import asyncio
+from datetime import datetime
 
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
+import pymysql
+import util
 
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 load_dotenv()
 
 token = os.getenv('AttendBot_TOKEN')
 channel_id = os.getenv('CHANNEL_ID')
+
+
+class Connection:
+    def __init__(self):
+        self.host = os.getenv('DB_HOST')
+        self.user = os.getenv('DB_USER')
+        self.pw = os.getenv('DB_PASSWORD')
+        self.db = os.getenv('DB_SCHEMA')
+        self.conn = pymysql.connect(host=self.host, user=self.user, password=self.pw, database=self.db)
+        self.cur = self.conn.cursor(pymysql.cursors.DictCursor)
+        print("DB에 성공적으로 연결됨")
+
+    def __del__(self):
+        self.conn.close()
+        print("DB 연결을 끊음")
+
+    def getConnection(self):
+        self.conn.ping()
+        return self.conn, self.cur
+
+
+connection = Connection()
 
 
 @bot.event
@@ -28,10 +53,12 @@ async def testHello(ctx):
     await ctx.channel.send(f'{ctx.message.author.mention}님, 나도 안녕!', reference=ctx.message)
 
 
-@bot.command(name="독촉")  # 매일 아침 8시 (주말제외?) 개인 DM으로 쓰라고 연락옴
-async def follow(ctx):
-    dm_channel = await ctx.message.author.create_dm()
-    await dm_channel.send(f'{ctx.message.author.mention}님, 출석하세요! 데일리 적고 공유해주세요!')
+@bot.command(name="독촉")  # 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기 가능
+async def follow(ctx, user: discord.Member):
+    if user:
+        await user.send(f"{user.mention}님, 출석하세요! 데일리를 적고 공유해주세요!")
+    else:
+        await ctx.send("사용자를 찾을 수 없습니다.")
 
 
 @bot.command(name="알람")
@@ -46,11 +73,17 @@ async def alarm(ctx, duration: int):
     await ctx.author.send(f"{ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
 
 
+@bot.command(name="출석")
+async def attend(ctx):
+
+
+
 @bot.command(name="도움말")
 async def helps(ctx):
     embed = discord.Embed(title="도움말",
                           description="**/데일리작성**\n데일리를 적습니다.\n\n**/데일리삭제**\n데일리 내용 모두 삭제합니다.\n\n**/재알람**\n`/알람 "
-                                      "3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n**/출석**\n출석을 해서 스택을 쌓습니다.\n\n"
+                                      "3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n**/출석**\n출석을 해서 스택을 쌓습니다.\n\n**/독촉**\n`/독촉 @상대` "
+                                      "형식으로 사용합니다. 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기가 가능합니다.\n\n"
                           , color=0xffc0cb)
 
     await ctx.send(embed=embed)
