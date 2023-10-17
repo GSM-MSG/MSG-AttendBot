@@ -9,11 +9,18 @@ bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 load_dotenv()
 
 token = os.getenv('AttendBot_TOKEN')
+channel_id = os.getenv('CHANNEL_ID')
 
 
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
+    channel = bot.get_channel(int(channel_id))
+
+    if channel:
+        command = bot.get_command("도움말")
+        if command:
+            await command.callback(channel)
 
 
 @bot.command(name="안녕")
@@ -33,9 +40,10 @@ async def alarm(ctx, duration: int):
         await ctx.send("3, 5, 7분 뒤 재알람만 가능합니다.")
         return
 
-    await ctx.send(f"{duration}분 후에 재알람 설정이 되었습니다. **출석**과 **데일리**를 성실하게 해주세요 오늘도 파이팅 ٩( ᐛ )و")
+    await ctx.send(f"{ctx.message.author.mention}님, {duration}분 후에 재알람 설정이 되었습니다. **출석**과 **데일리**를 성실하게 해주세요 오늘도 파이팅 "
+                   f"٩( ᐛ )و")
     await asyncio.sleep(duration)
-    await ctx.author.send(f"{duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
+    await ctx.author.send(f"{ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
 
 
 @bot.command(name="도움말")
