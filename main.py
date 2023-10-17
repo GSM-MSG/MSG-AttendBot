@@ -38,28 +38,11 @@ async def alarm(ctx, duration: int):
     await ctx.author.send(f"{duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
 
 
-@discord.ui.button(label='3분 뒤', style=discord.ButtonStyle.primary, row=1)
-async def button3(self, interaction: discord.Interaction, button: discord.ui.Button):
-    await asyncio.sleep(3 * 60)
-    await interaction.response.author.send_message(f"3분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
-
-
-@discord.ui.button(label='5분 뒤', style=discord.ButtonStyle.primary, row=1)
-async def button5(self, interaction: discord.Interaction, button: discord.ui.Button):
-    await asyncio.sleep(5 * 60)
-    await interaction.response.author.send_message(f"5분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
-
-
-@discord.ui.button(label='7분 뒤', style=discord.ButtonStyle.primary, row=1)
-async def button7(self, interaction: discord.Interaction, button: discord.ui.Button):
-    await asyncio.sleep(7 * 60)
-    await interaction.response.author.send_message(f"7분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
-
-
 @bot.command(name="도움말")
 async def helps(ctx):
     embed = discord.Embed(title="도움말",
-                          description="**/데일리작성**\n데일리를 적습니다.\n\n**/데일리삭제**\n데일리 내용 모두 삭제합니다.\n\n**/알람**\n다시 알람을 보내서 데일리를 작성하도록 합니다.\n\n**/출석**\n출석을 해서 스택을 쌓습니다.\n\n"
+                          description="**/데일리작성**\n데일리를 적습니다.\n\n**/데일리삭제**\n데일리 내용 모두 삭제합니다.\n\n**/재알람**\n`/알람 "
+                                      "3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n**/출석**\n출석을 해서 스택을 쌓습니다.\n\n"
                           , color=0xffc0cb)
 
     await ctx.send(embed=embed)
