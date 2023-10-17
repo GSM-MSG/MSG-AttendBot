@@ -1,12 +1,13 @@
 import asyncio
+
 from datetime import datetime
+from importlib import util
 
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
 import pymysql
-import util
 
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 load_dotenv()
@@ -75,15 +76,35 @@ async def alarm(ctx, duration: int):
 
 @bot.command(name="출석")
 async def attend(ctx):
+    conn, cur = util.connection.getConnection()
+    sql = f"SELECT * FROM daily WHERE did=%s"
+    cur.execute(sql, ctx.message.author, id)
+    rs = cur.fetchone()
+    today = datetime.now().strftime('%Y-%m-%d')
 
+    if rs is not None and str(rs.get('date')) == today:
+        await ctx.message.delete()
+        await ctx.channel.send(f'> {ctx.message.author.display_name}님은 이미 출석체크를 했어요!')
+        return
+
+    if rs is None:
+        sql = "INSERT INTO daily (did, count, date) values (%s, %s, %s)"
+        cur.execute(sql, (ctx.message.author.id, 1, today))
+        conn.commit()
+    else:
+        sql = 'UPDATE dailyCheck SET count=%s, date=%s WHERE did=%s'
+        cur.execute(sql, (rs['count'] + 1, today, ctx.message.author.id))
+        conn.commit()
+    await ctx.channel.send(f'> {ctx.message.author.display_name}님의 출석이 확인되었어요!')
 
 
 @bot.command(name="도움말")
 async def helps(ctx):
     embed = discord.Embed(title="도움말",
-                          description="**/데일리작성**\n데일리를 적습니다.\n\n**/데일리삭제**\n데일리 내용 모두 삭제합니다.\n\n**/재알람**\n`/알람 "
-                                      "3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n**/출석**\n출석을 해서 스택을 쌓습니다.\n\n**/독촉**\n`/독촉 @상대` "
-                                      "형식으로 사용합니다. 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기가 가능합니다.\n\n"
+                          description="**/작성**\n데일리를 적습니다.\n\n**/삭제**\n데일리 내용 모두 삭제합니다.\n\n**/알람**\n`/알람 "
+                                      "3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n**/출석**\n출석을 해서 스택을 쌓습니다.\n\n**/순위표**\n현재 출석률을 "
+                                      "확인합니다.\n\n**/독촉**\n`/독촉 @상대`"
+                                      "형식으로 사용합니다. 본인이 멘션 대상자에게 독촉 DM을 봇이 대신 보내줍니다.\n\n"
                           , color=0xffc0cb)
 
     await ctx.send(embed=embed)
