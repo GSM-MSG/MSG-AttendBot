@@ -91,7 +91,7 @@ async def attend(ctx):
         cur.execute(sql, (str(ctx.message.author.id), 1, today))
         conn.commit()
     else:
-        sql = 'UPDATE dailyCheck SET count=%s, date=%s WHERE did=%s'
+        sql = 'UPDATE daily SET count=%s, date=%s WHERE did=%s'
         cur.execute(sql, (rs['count'] + 1, today, str(ctx.message.author.id)))
         conn.commit()
     await ctx.channel.send(f'> {ctx.message.author.display_name}님의 출석이 확인되었어요!')
