@@ -36,27 +36,7 @@ class Connection:
 
 
 connection = Connection()
-c = connection.cur()
-
-
-def scoreboard(guild):
-    conn, cur = connection.getConnection()
-    cur.execute('''SELECT id, point FROM Members WHERE guild=? ORDER BY point DESC''', (guild.id,))
-    s = ''
-    point = float('inf')
-    rank, count = 1, 1
-    for Id, Point in c.fetchall():
-        user = guild.get_member(Id)
-        if user is None:
-            continue
-        if point != Point:
-           rank = count
-           point = Point
-         s += "{:d}. {:d}점 {:s}\n".format(rank, Point, user.display_name)
-        count += 1
-        if count > 10:
-            break
-    return s
+c = connection.cur
 
 
 @bot.event
