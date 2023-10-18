@@ -1,7 +1,6 @@
 import asyncio
 
 from datetime import datetime
-from importlib import util
 
 import discord
 from discord.ext import commands
@@ -63,9 +62,9 @@ async def follow(ctx, user: discord.Member):
 
 
 @bot.command(name="알람")
-async def alarm(ctx, duration: int):
-    if duration not in [3, 5, 7]:
-        await ctx.send("3, 5, 7분 뒤 재알람만 가능합니다.")
+async def alarm(ctx, duration: int = None):
+    if duration is None or duration not in [3, 5, 7]:
+        await ctx.send("3, 5, 7분 뒤 재알람만 가능합니다.`/알람` 형식으로 입력해주세요.")
         return
 
     await ctx.send(f"{ctx.message.author.mention}님, {duration}분 후에 재알람 설정이 되었습니다. **출석**과 **데일리**를 성실하게 해주세요 오늘도 파이팅 "
@@ -76,9 +75,9 @@ async def alarm(ctx, duration: int):
 
 @bot.command(name="출석")
 async def attend(ctx):
-    conn, cur = util.connection.getConnection()
+    conn, cur = connection.getConnection()
     sql = f"SELECT * FROM daily WHERE did=%s"
-    cur.execute(sql, ctx.message.author, id)
+    cur.execute(sql, (ctx.message.author, id))가
     rs = cur.fetchone()
     today = datetime.now().strftime('%Y-%m-%d')
 
