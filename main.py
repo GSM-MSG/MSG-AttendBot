@@ -1,5 +1,6 @@
 import asyncio
-from connection import Connection
+
+import pymysql
 
 from datetime import datetime
 import connection
@@ -15,14 +16,47 @@ token = os.getenv('AttendBot_TOKEN')
 channel_id = os.getenv('CHANNEL_ID')
 
 
-def DBCon():
-    connection_instance = Connection()
-    conn, _ = connection_instance.get_connection()
-    return conn
+class Connection:
+    def __init__(self):
+        self.host = os.getenv('DB_HOST')
+        self.user = os.getenv('DB_USER')
+        self.pw = os.getenv('DB_PASSWORD')
+        self.db = os.getenv('DB_SCHEMA')
+        self.conn = pymysql.connect(host=self.host, user=self.user, password=self.pw, database=self.db)
+        self.cur = self.conn.cursor(pymysql.cursors.DictCursor)
+        print("DB에 성공적으로 연결됨")
+
+    def __del__(self):
+        self.conn.close()
+        print("DB 연결을 끊음")
+
+    def getConnection(self):
+        self.conn.ping()
+        return self.conn, self.cur
 
 
-if __name__ == '__main__':
-    connection = DBCon()
+connection = Connection()
+c = connection.cur()
+
+
+def scoreboard(guild):
+    conn, cur = connection.getConnection()
+    cur.execute('''SELECT id, point FROM Members WHERE guild=? ORDER BY point DESC''', (guild.id,))
+    s = ''
+    point = float('inf')
+    rank, count = 1, 1
+    for Id, Point in c.fetchall():
+        user = guild.get_member(Id)
+        if user is None:
+            continue
+        if point != Point:
+           rank = count
+           point = Point
+         s += "{:d}. {:d}점 {:s}\n".format(rank, Point, user.display_name)
+        count += 1
+        if count > 10:
+            break
+    return s
 
 
 @bot.event
@@ -62,27 +96,35 @@ async def alarm(ctx, duration: int = None):
 
 
 @bot.command(name="출석")
-async def attend(ctx):
+async def attend(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+
     conn, cur = connection.getConnection()
     sql = f"SELECT * FROM daily WHERE did=%s"
-    cur.execute(sql, (str(ctx.message.author.id),))
+    cur.execute(sql, (str(member.id),))
     rs = cur.fetchone()
     today = datetime.now().strftime('%Y-%m-%d')
 
     if rs is not None and str(rs.get('date')) == today:
         await ctx.message.delete()
-        await ctx.channel.send(f'> {ctx.message.author.display_name}님은 이미 출석체크를 했어요!')
+        await ctx.channel.send(f'> {member.display_name}님은 이미 출석체크를 했어요!')
         return
 
     if rs is None:
         sql = "INSERT INTO daily (did, count, date) values (%s, %s, %s)"
-        cur.execute(sql, (str(ctx.message.author.id), 1, today))
+        cur.execute(sql, (str(member.id), 1, today))
         conn.commit()
     else:
         sql = 'UPDATE daily SET count=%s, date=%s WHERE did=%s'
-        cur.execute(sql, (rs['count'] + 1, today, str(ctx.message.author.id)))
+        cur.execute(sql, (rs['count'] + 1, today, str(member.id)))
         conn.commit()
-    await ctx.channel.send(f'> {ctx.message.author.display_name}님의 출석이 확인되었어요!')
+    await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요!')
+
+
+@bot.command(name="순위")  # count 10개당 n점 환산으로 순위표에 등재됨.
+async def standing(ctx):
+    embed = discord.Embed(title="순위표", description=discord.utils.escape_markdown(scoreboard(ctx.author.guild)))
 
 
 @bot.command(name="도움말")
