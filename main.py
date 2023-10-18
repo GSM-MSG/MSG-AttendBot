@@ -77,7 +77,7 @@ async def alarm(ctx, duration: int = None):
 async def attend(ctx):
     conn, cur = connection.getConnection()
     sql = f"SELECT * FROM daily WHERE did=%s"
-    cur.execute(sql, (ctx.message.author, id))
+    cur.execute(sql, (str(ctx.message.author.id),))
     rs = cur.fetchone()
     today = datetime.now().strftime('%Y-%m-%d')
 
@@ -88,11 +88,11 @@ async def attend(ctx):
 
     if rs is None:
         sql = "INSERT INTO daily (did, count, date) values (%s, %s, %s)"
-        cur.execute(sql, (ctx.message.author.id, 1, today))
+        cur.execute(sql, (str(ctx.message.author.id), 1, today))
         conn.commit()
     else:
         sql = 'UPDATE dailyCheck SET count=%s, date=%s WHERE did=%s'
-        cur.execute(sql, (rs['count'] + 1, today, ctx.message.author.id))
+        cur.execute(sql, (rs['count'] + 1, today, str(ctx.message.author.id)))
         conn.commit()
     await ctx.channel.send(f'> {ctx.message.author.display_name}님의 출석이 확인되었어요!')
 
