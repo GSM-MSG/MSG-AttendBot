@@ -77,7 +77,7 @@ async def alarm(ctx, duration: int = None):
 async def attend(ctx):
     conn, cur = connection.getConnection()
     sql = f"SELECT * FROM daily WHERE did=%s"
-    cur.execute(sql, (ctx.message.author, id))가
+    cur.execute(sql, (ctx.message.author, id))
     rs = cur.fetchone()
     today = datetime.now().strftime('%Y-%m-%d')
 
