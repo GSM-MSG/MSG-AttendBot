@@ -1,12 +1,12 @@
 import asyncio
+from connection import Connection
 
 from datetime import datetime
-
+import connection
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
-import pymysql
 
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 load_dotenv()
@@ -15,26 +15,10 @@ token = os.getenv('AttendBot_TOKEN')
 channel_id = os.getenv('CHANNEL_ID')
 
 
-class Connection:
-    def __init__(self):
-        self.host = os.getenv('DB_HOST')
-        self.user = os.getenv('DB_USER')
-        self.pw = os.getenv('DB_PASSWORD')
-        self.db = os.getenv('DB_SCHEMA')
-        self.conn = pymysql.connect(host=self.host, user=self.user, password=self.pw, database=self.db)
-        self.cur = self.conn.cursor(pymysql.cursors.DictCursor)
-        print("DB에 성공적으로 연결됨")
-
-    def __del__(self):
-        self.conn.close()
-        print("DB 연결을 끊음")
-
-    def getConnection(self):
-        self.conn.ping()
-        return self.conn, self.cur
-
-
-connection = Connection()
+def DBCon():
+    connection_instance = Connection()
+    conn, _ = connection_instance.get_connection()
+    return conn
 
 
 @bot.event
@@ -101,8 +85,8 @@ async def attend(ctx):
 async def helps(ctx):
     embed = discord.Embed(title="도움말",
                           description="**/작성**\n데일리를 적습니다.\n\n**/삭제**\n데일리 내용 모두 삭제합니다.\n\n**/알람**\n`/알람 "
-                                      "3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n**/출석**\n출석을 해서 스택을 쌓습니다.\n\n**/순위표**\n현재 출석률을 "
-                                      "확인합니다.\n\n**/독촉**\n`/독촉 @상대`"
+                                      "3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n**/출석**\n`/출석`을 해서 스택을 쌓습니다. `/출석 @상대` 기능으로 출석 "
+                                      "여부를 파악할 수 있습니다.\n\n**/순위표**\n현재 출석률을 확인합니다.\n\n**/독촉**\n`/독촉 @상대`"
                                       "형식으로 사용합니다. 본인이 멘션 대상자에게 독촉 DM을 봇이 대신 보내줍니다.\n\n"
                           , color=0xffc0cb)
 
