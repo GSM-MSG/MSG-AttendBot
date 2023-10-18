@@ -19,7 +19,7 @@ class Connection:
         self.conn.close()
         print("DB 연결을 끊음")
 
-    def get_connection(self):
+    def getConnection(self):
         self.conn.ping()
         return self.conn, self.cur
 
