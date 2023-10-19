@@ -1,7 +1,5 @@
 import asyncio
 
-import pymysql
-
 from datetime import datetime
 import connection
 import discord
@@ -79,7 +77,7 @@ async def attend(ctx, member: discord.Member = None):
         sql = 'UPDATE daily SET count=%s, date=%s WHERE did=%s'
         cur.execute(sql, (rs['count'] + 1, today, str(member.id)))
         conn.commit()
-    await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요!')
+    await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
 
 
 @bot.command(name="순위")  # count 10개당 n점 환산으로 순위표에 등재됨.
@@ -96,6 +94,14 @@ async def helps(ctx):
                                       "형식으로 사용합니다. 본인이 멘션 대상자에게 독촉 DM을 봇이 대신 보내줍니다.\n\n"
                           , color=0xffc0cb)
 
+    await ctx.send(embed=embed)
+
+
+@bot.command(name="루틴")
+async def routine(ctx):
+    embed = discord.Embed(title="출석체크라도 하세요!!!!!!",
+                          description="포인트가 얻고 싶지 않으신가요?\n\n순위표에 1등 한 번 찍어보셔야죠?\n\n이 쉬운걸..안 해?\n\n"
+                          , color=0xffc0cb)
     await ctx.send(embed=embed)
 
 
