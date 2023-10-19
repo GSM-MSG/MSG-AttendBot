@@ -33,7 +33,7 @@ async def testHello(ctx):
     await ctx.channel.send(f'{ctx.message.author.mention}님, 나도 안녕!', reference=ctx.message)
 
 
-@bot.command(name="독촉")  # 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기 가능
+@bot.command(aliases=['알람', 'al'])  # 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기 가능
 async def follow(ctx, user: discord.Member):
     if user:
         await user.send(f"{user.mention}님, 출석하세요! 데일리를 적고 공유해주세요!")
@@ -41,7 +41,7 @@ async def follow(ctx, user: discord.Member):
         await ctx.send("사용자를 찾을 수 없습니다.")
 
 
-@bot.command(name="알람")
+@bot.command(aliases=['알람', 'al'])
 async def alarm(ctx, duration: int = None):
     if duration is None or duration not in [3, 5, 7]:
         await ctx.send("3, 5, 7분 뒤 재알람만 가능합니다.`/알람` 형식으로 입력해주세요.")
@@ -53,7 +53,7 @@ async def alarm(ctx, duration: int = None):
     await ctx.author.send(f"{ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
 
 
-@bot.command(name="출석")
+@bot.command(aliases=['출석', 'at'])
 async def attend(ctx, member: discord.Member = None):
     if member is None:
         member = ctx.author
@@ -80,24 +80,26 @@ async def attend(ctx, member: discord.Member = None):
     await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
 
 
-@bot.command(name="순위")  # count 10개당 n점 환산으로 순위표에 등재됨.
+@bot.command(aliases=['순위', 'rk'])  # count 10개당 n점 환산으로 순위표에 등재됨.
 async def standing(ctx):
     embed = discord.Embed(title="순위표", description=discord.utils.escape_markdown(scoreboard(ctx.author.guild)))
 
 
-@bot.command(name="도움말")
+@bot.command(aliases=['도움말', 'hp'])
 async def helps(ctx):
     embed = discord.Embed(title="도움말",
-                          description="**/작성**\n데일리를 적습니다.\n\n**/삭제**\n데일리 내용 모두 삭제합니다.\n\n**/알람**\n`/알람 "
-                                      "3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n**/출석**\n`/출석`을 해서 스택을 쌓습니다. `/출석 @상대` 기능으로 출석 "
-                                      "여부를 파악할 수 있습니다.\n\n**/순위표**\n현재 출석률을 확인합니다.\n\n**/독촉**\n`/독촉 @상대`"
-                                      "형식으로 사용합니다. 본인이 멘션 대상자에게 독촉 DM을 봇이 대신 보내줍니다.\n\n"
+                          description="**/작성**\n데일리를 적습니다.\n\n"
+                                      "**/삭제**, **/dd**\n데일리 내용 모두 삭제합니다.\n\n"
+                                      "**/알람**\n`/알람 3`, `/al 3`형식으로 작성합니다. 3,5,7분만 가능합니다.\n\n"
+                                      "**/출석**\n`/출석`을 해서 스택을 쌓습니다. `/출석 @상대` 기능으로 출석여부를 파악할 수 있습니다.\n\n "                                      
+                                      "**/순위표**\n현재 출석률을 확인합니다.\n\n"
+                                      "**/독촉**\n`/독촉 @상대`형식으로 사용합니다. 멘션 대상자에게 독촉 DM을 봇이 대신 보내줍니다.\n\n"
                           , color=0xffc0cb)
 
     await ctx.send(embed=embed)
 
 
-@bot.command(name="루틴")
+@bot.command(aliases=['루틴', 'rt'])
 async def routine(ctx):
     embed = discord.Embed(title="출석체크라도 하세요!!!!!!",
                           description="포인트가 얻고 싶지 않으신가요?\n\n순위표에 1등 한 번 찍어보셔야죠?\n\n이 쉬운걸..안 해?\n\n"
