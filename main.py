@@ -55,29 +55,31 @@ async def alarm(ctx, duration: int = None):
 
 @bot.command(aliases=['출석', 'at'])
 async def attend(ctx, member: discord.Member = None):
-    if member is None:
-        member = ctx.author
+    conn, cur = connection.getConnection()
 
-    conn,cur = connection.getConnection()
-    sql = f"SELECT * FROM attend WHERE did=%s"
-    cur.execute(sql, (str(member.id),))
+    if member is not None:
+        await ctx.channel.send("다른 사용자의 출석을 기록할 수 없습니다.")
+        return
+
+    sql = "SELECT * FROM attend WHERE did=%s"
+    cur.execute(sql, (str(ctx.author.id),))
     rs = cur.fetchone()
     today = datetime.now().strftime('%Y-%m-%d')
 
-    if rs is not None and str(rs.get('date').strftime('%Y-%m-%d')) == today:
-        await ctx.channel.send(f'> {member.display_name}님은 이미 출석체크를 했어요!')
+    if rs is not None and str(rs.get('date')) == today:
+        await ctx.channel.send(f'> {ctx.author.display_name}님은 이미 출석체크를 했어요!')
         return
 
     if rs is None:
         sql = "INSERT INTO attend (did, count, date) values (%s, %s, %s)"
-        cur.execute(sql, (str(member.id), 1, today))
+        cur.execute(sql, (str(ctx.author.id), 1, today))
         conn.commit()
-        await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
+        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
     else:
         sql = 'UPDATE attend SET count=%s, date=%s WHERE did=%s'
-        cur.execute(sql, (rs['count'] + 1, today, str(member.id)))
+        cur.execute(sql, (rs['count'] + 1, today, str(ctx.author.id)))
         conn.commit()
-    await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
+        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
 
 
 @bot.command(aliases=['순위', 'rk'])  # count 10개당 n점 환산으로 순위표에 등재됨.
