@@ -58,8 +58,8 @@ async def attend(ctx, member: discord.Member = None):
     if member is None:
         member = ctx.author
 
-    conn, cur = connection.getConnection()
-    sql = f"SELECT * FROM daily WHERE did=%s"
+    conn,cur = connection.getConnection()
+    sql = f"SELECT * FROM attend WHERE did=%s"
     cur.execute(sql, (str(member.id),))
     rs = cur.fetchone()
     today = datetime.now().strftime('%Y-%m-%d')
@@ -70,11 +70,12 @@ async def attend(ctx, member: discord.Member = None):
         return
 
     if rs is None:
-        sql = "INSERT INTO daily (did, count, date) values (%s, %s, %s)"
+        sql = "INSERT INTO attend (did, count, date) values (%s, %s, %s)"
         cur.execute(sql, (str(member.id), 1, today))
         conn.commit()
+        await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
     else:
-        sql = 'UPDATE daily SET count=%s, date=%s WHERE did=%s'
+        sql = 'UPDATE attend SET count=%s, date=%s WHERE did=%s'
         cur.execute(sql, (rs['count'] + 1, today, str(member.id)))
         conn.commit()
     await ctx.channel.send(f'> {member.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
