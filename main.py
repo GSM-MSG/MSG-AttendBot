@@ -53,7 +53,7 @@ async def alarm(ctx, duration: int = None):
     await ctx.author.send(f"{ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
 
 
-@bot.command(aliases=['출석', 'at'])
+@bot.command(aliases=['출석', 'aa'])
 async def attend(ctx, member: discord.Member = None):
     conn, cur = connection.getConnection()
 
