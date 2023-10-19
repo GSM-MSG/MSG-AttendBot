@@ -86,6 +86,26 @@ async def attend(ctx, member: discord.Member = None):
         await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
 
 
+@bot.command(aliases=['포인트', 'pp'])
+async def point(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+
+    conn, cur = connection.getConnection()
+    sql = f"SELECT * FROM attend WHERE did=%s"
+    cur.execute(sql, (str(member.id),))
+    rs = cur.fetchone()
+
+    if rs is None:
+        await ctx.send("출석 기록이 없습니다.")
+    else:
+        count = rs['count']
+        base_point = count * 10  # 출석 횟수에 따라 10점씩 적립
+        bonus_point = count // 5 * 20  # 5의 배수일 때 20점씩 추가 적립
+        total_point = base_point + bonus_point
+        await ctx.send(f"{member.display_name}님의 현재 포인트는 {total_point}점입니다.")
+
+
 @bot.command(aliases=['도움말', 'hp'])
 async def helps(ctx):
     embed = discord.Embed(title="도움말",
