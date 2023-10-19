@@ -64,8 +64,7 @@ async def attend(ctx, member: discord.Member = None):
     rs = cur.fetchone()
     today = datetime.now().strftime('%Y-%m-%d')
 
-    if rs is not None and str(rs.get('date')) == today:
-        await ctx.message.delete()
+    if rs is not None and str(rs.get('date').strftime('%Y-%m-%d')) == today:
         await ctx.channel.send(f'> {member.display_name}님은 이미 출석체크를 했어요!')
         return
 
