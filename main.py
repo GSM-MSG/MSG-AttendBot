@@ -42,7 +42,11 @@ async def follow(ctx, user: discord.Member):
 
 
 @bot.command(aliases=['알람', 'al'])
-async def alarm(ctx, duration: int = None):
+async def alarm(ctx, duration: int = None, member: discord.Member = None):
+    if member is not None:
+        await ctx.send("다른 사용자의 알람을 설정할 수 없습니다.")
+        return
+
     if duration is None or duration not in [3, 5, 7]:
         await ctx.send("3, 5, 7분 뒤 재알람만 가능합니다.`/알람 3` 형식으로 입력해주세요.")
         return
