@@ -86,11 +86,6 @@ async def attend(ctx, member: discord.Member = None):
         await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
 
 
-@bot.command(aliases=['순위', 'rk'])  # count 10개당 n점 환산으로 순위표에 등재됨.
-async def standing(ctx):
-    embed = discord.Embed(title="순위표", description=discord.utils.escape_markdown(scoreboard(ctx.author.guild)))
-
-
 @bot.command(aliases=['도움말', 'hp'])
 async def helps(ctx):
     embed = discord.Embed(title="도움말",
