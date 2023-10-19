@@ -36,7 +36,7 @@ async def testHello(ctx):
 @bot.command(aliases=['독촉', 'dc'])  # 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기 가능
 async def follow(ctx, user: discord.Member):
     if user:
-        await user.send(f"{user.mention}님, 출석하세요! 데일리를 적고 공유해주세요!")
+        await user.send(f"{user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
     else:
         await ctx.send("사용자를 찾을 수 없습니다.")
 
@@ -44,7 +44,7 @@ async def follow(ctx, user: discord.Member):
 @bot.command(aliases=['알람', 'al'])
 async def alarm(ctx, duration: int = None):
     if duration is None or duration not in [3, 5, 7]:
-        await ctx.send("3, 5, 7분 뒤 재알람만 가능합니다.`/알람` 형식으로 입력해주세요.")
+        await ctx.send("3, 5, 7분 뒤 재알람만 가능합니다.`/알람 3` 형식으로 입력해주세요.")
         return
 
     await ctx.send(f"{ctx.message.author.mention}님, {duration}분 후에 재알람 설정이 되었습니다. **출석**과 **데일리**를 성실하게 해주세요 오늘도 파이팅 "
