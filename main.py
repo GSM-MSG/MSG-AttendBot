@@ -33,7 +33,7 @@ async def testHello(ctx):
     await ctx.channel.send(f'{ctx.message.author.mention}님, 나도 안녕!', reference=ctx.message)
 
 
-@bot.command(aliases=['알람', 'al'])  # 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기 가능
+@bot.command(aliases=['독촉', 'dc'])  # 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기 가능
 async def follow(ctx, user: discord.Member):
     if user:
         await user.send(f"{user.mention}님, 출석하세요! 데일리를 적고 공유해주세요!")
