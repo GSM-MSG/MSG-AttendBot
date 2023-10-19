@@ -105,6 +105,10 @@ async def point(ctx, member: discord.Member = None):
         total_point = base_point + bonus_point
         await ctx.send(f"{member.display_name}님의 현재 포인트는 {total_point}점입니다.")
 
+        update_sql = "UPDATE attend SET point = %s WHERE did = %s"
+        cur.execute(update_sql, (total_point, str(member.id)))
+        conn.commit()
+
 
 @bot.command(aliases=['도움말', 'hp'])
 async def helps(ctx):
