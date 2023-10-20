@@ -28,6 +28,14 @@ async def on_ready():
             await command.callback(channel)
 
 
+@bot.event
+async def on_message(message):
+    if bot.user.mentioned_in(message):
+        await message.channel.send(f'> 등장! 💫💫💫💫💫💫')
+
+    await bot.process_commands(message)
+
+
 @bot.command(name="안녕")
 async def testHello(ctx):
     await ctx.channel.send(f'{ctx.message.author.mention}님, 나도 안녕!', reference=ctx.message)
