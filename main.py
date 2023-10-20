@@ -1,11 +1,15 @@
 import asyncio
 
 from datetime import datetime
+
+from discord import app_commands
+
 import connection
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
+
 
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 load_dotenv()
@@ -41,7 +45,7 @@ async def testHello(ctx):
     await ctx.channel.send(f'{ctx.message.author.mention}님, 나도 안녕!', reference=ctx.message)
 
 
-@bot.command(aliases=['독촉', 'dc'])  # 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기 가능
+@bot.command(aliases=['독촉', 'dc'])  # 출석 체크 여부 파악 후 독촉 기능 수행
 async def follow(ctx, user: discord.Member):
     if user:
         await user.send(f"> {user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
@@ -61,7 +65,7 @@ async def alarm(ctx, duration: int = None, member: discord.Member = None):
 
     await ctx.send(f"> {ctx.message.author.mention}님, {duration}분 후에 재알람 설정이 되었습니다. **출석**과 **데일리**를 성실하게 해주세요 오늘도 파이팅 "
                    f"٩( ᐛ )و")
-    await asyncio.sleep(duration)
+    await asyncio.sleep(duration * 60)
     await ctx.author.send(f"> {ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
 
 
@@ -124,7 +128,7 @@ async def ranking(ctx, member: discord.Member = None):
         member = ctx.author
 
     conn, cur = connection.getConnection()
-    sql = "SELECT * FROM attend ORDER BY point DESC LIMIT 10"
+    sql = "SELECT * FROM attend ORDER BY point DESC LIMIT 5"
     cur.execute(sql)
     result = cur.fetchall()
 
