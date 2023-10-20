@@ -36,7 +36,7 @@ async def testHello(ctx):
 @bot.command(aliases=['독촉', 'dc'])  # 상대방이 멘션하는 사람에게 독촉 DM 대신 보내기 가능
 async def follow(ctx, user: discord.Member):
     if user:
-        await user.send(f"{user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
+        await user.send(f"> {user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
     else:
         await ctx.send("사용자를 찾을 수 없습니다.")
 
@@ -44,17 +44,17 @@ async def follow(ctx, user: discord.Member):
 @bot.command(aliases=['알람', 'al'])
 async def alarm(ctx, duration: int = None, member: discord.Member = None):
     if member is not None:
-        await ctx.send("다른 사용자의 알람을 설정할 수 없습니다.")
+        await ctx.send("> 다른 사용자의 알람을 설정할 수 없습니다.")
         return
 
     if duration is None or duration not in [3, 5, 7]:
-        await ctx.send("3, 5, 7분 뒤 재알람만 가능합니다.`/알람 3` 형식으로 입력해주세요.")
+        await ctx.send("> 3, 5, 7분 뒤 재알람만 가능합니다.`/알람 3` 형식으로 입력해주세요.")
         return
 
-    await ctx.send(f"{ctx.message.author.mention}님, {duration}분 후에 재알람 설정이 되었습니다. **출석**과 **데일리**를 성실하게 해주세요 오늘도 파이팅 "
+    await ctx.send(f"> {ctx.message.author.mention}님, {duration}분 후에 재알람 설정이 되었습니다. **출석**과 **데일리**를 성실하게 해주세요 오늘도 파이팅 "
                    f"٩( ᐛ )و")
     await asyncio.sleep(duration)
-    await ctx.author.send(f"{ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
+    await ctx.author.send(f"> {ctx.message.author.mention}님, {duration}분이 지났습니다. `/출석`, `/데일리작성` 명령어를 사용하세요.")
 
 
 @bot.command(aliases=['출석', 'aa'])
@@ -62,7 +62,7 @@ async def attend(ctx, member: discord.Member = None):
     conn, cur = connection.getConnection()
 
     if member is not None:
-        await ctx.channel.send("다른 사용자의 출석을 기록할 수 없습니다.")
+        await ctx.channel.send("> 다른 사용자의 출석을 기록할 수 없습니다.")
         return
 
     sql = "SELECT * FROM attend WHERE did=%s"
@@ -78,7 +78,7 @@ async def attend(ctx, member: discord.Member = None):
         sql = "INSERT INTO attend (did, count, date) values (%s, %s, %s)"
         cur.execute(sql, (str(ctx.author.id), 1, today))
         conn.commit()
-        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?')
+        await ctx.channel.send(f'> {ctx.author.display_name}님의 출석이 확인되었어요! 이제 데일리를 작성해볼까요?', )
     else:
         sql = 'UPDATE attend SET count=%s, date=%s WHERE did=%s'
         cur.execute(sql, (rs['count'] + 1, today, str(ctx.author.id)))
@@ -97,17 +97,37 @@ async def point(ctx, member: discord.Member = None):
     rs = cur.fetchone()
 
     if rs is None:
-        await ctx.send("출석 기록이 없습니다.")
+        await ctx.send("> 출석 기록이 없습니다.")
     else:
         count = rs['count']
         base_point = count * 10  # 출석 횟수에 따라 10점씩 적립
         bonus_point = count // 5 * 20  # 5의 배수일 때 20점씩 추가 적립
         total_point = base_point + bonus_point
-        await ctx.send(f"{member.display_name}님의 현재 포인트는 {total_point}점입니다.")
+        await ctx.send(f"> {member.display_name}님의 현재 포인트는 {total_point}점입니다.")
 
         update_sql = "UPDATE attend SET point = %s WHERE did = %s"
         cur.execute(update_sql, (total_point, str(member.id)))
         conn.commit()
+
+
+@bot.command(aliases=['순위', 'rk'])
+async def ranking(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+
+    conn, cur = connection.getConnection()
+    sql = "SELECT * FROM attend ORDER BY point DESC LIMIT 10"
+    cur.execute(sql)
+    result = cur.fetchall()
+
+    embed = discord.Embed(title="🏆 순위표 🏆", color=discord.Color.blue())
+    for index, row in enumerate(result):
+        user = bot.get_user(int(row['did']))
+        if user:
+            embed.add_field(name=f"현재 {index + 1}등 !!! ", value=f"{user.display_name}\n  POINT: **{row['point']}**점",
+                            inline=False)
+
+    await ctx.send(embed=embed)
 
 
 @bot.command(aliases=['도움말', 'hp'])
