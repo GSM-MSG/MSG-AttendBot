@@ -1,14 +1,12 @@
 import asyncio
-
 from datetime import datetime
 
-from discord import app_commands
-
 import connection
-import discord
-from discord.ext import commands
 from dotenv import load_dotenv
 import os
+
+import discord
+from discord.ext import commands
 
 
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
