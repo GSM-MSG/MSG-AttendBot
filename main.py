@@ -18,6 +18,8 @@ channel_id = os.getenv('CHANNEL_ID')
 connection = connection.Connection()
 conn, cur = connection.getConnection()
 
+guild_database_connections = {} # 서버 ID 별로 데이터베이스 연결을 관리하기 위한 딕셔너리
+
 
 @bot.event
 async def on_ready():
@@ -124,6 +126,11 @@ async def point(ctx, member: discord.Member = None):
 async def ranking(ctx, member: discord.Member = None):
     if member is None:
         member = ctx.author
+
+    guild_id = ctx.guild.id
+    if guild_id not in guild_database_connections:
+        # 새로운 서버의 경우 데이터베이스 연결 설정
+        guild_database_connections[guild_id] = connection.getConnection()
 
     conn, cur = connection.getConnection()
     sql = "SELECT * FROM attend ORDER BY point DESC LIMIT 5"
