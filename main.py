@@ -47,10 +47,24 @@ async def testHello(ctx):
 
 @bot.command(aliases=['독촉', 'dc'])  # 출석 체크 여부 파악 후 독촉 기능 수행
 async def follow(ctx, user: discord.Member):
-    if user:
-        await user.send(f"> {user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
+    conn, cur = connection.getConnection()
+
+    sql = "SELECT * FROM attend WHERE did=%s"
+    cur.execute(sql, (str(ctx.author.id),))
+    rs = cur.fetchone()
+
+    if rs is None:
+        await ctx.send(f"{ctx.author.mention}님 본인부터 출석체크하세요!")
+        return
+
+    sql = "SELECT * FROM attend WHERE did=%s"
+    cur.execute(sql, (str(user.id),))
+    rs = cur.fetchone()
+
+    if rs is not None:
+        await ctx.send(f"{user.display_name}님은 이미 출석한 상태입니다.")
     else:
-        await ctx.send("사용자를 찾을 수 없습니다.")
+        await user.send(f"> {user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
 
 
 @bot.command(aliases=['알람', 'al'])
