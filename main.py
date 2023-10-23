@@ -62,7 +62,7 @@ async def follow(ctx, user: discord.Member):
     rs = cur.fetchone()
 
     if rs is not None:
-        await ctx.send(f"{user.display_name}님은 이미 출석한 상태입니다.")
+        await ctx.send(f"{user.display_name}님을 독촉 하기엔 이미 출석을 해버렸습니다. {user.display_name}님, 좀 느린듯?")
     else:
         await user.send(f"> {user.mention}님, 출석이랑 데일리가 어려운 게 아닌데.. 아직도..")
 
