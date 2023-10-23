@@ -131,10 +131,12 @@ async def ranking(ctx, member: discord.Member = None):
     if guild_id not in server_database_connections:
         # 새로운 서버의 경우 데이터베이스 연결 설정
         server_database_connections[guild_id] = connection.getConnection()
-
     conn, cur = connection.getConnection()
-    sql = "SELECT * FROM attend ORDER BY point DESC LIMIT 5"
-    cur.execute(sql)
+
+    guild_members = [member.id for member in ctx.guild.members]
+
+    sql = f"SELECT * FROM attend WHERE did IN ({', '.join(['%s'] * len(guild_members))}) ORDER BY point DESC LIMIT 5"
+    cur.execute(sql, tuple(guild_members))
     result = cur.fetchall()
 
     embed = discord.Embed(title="🏆 순위표 🏆", color=discord.Color.blue())
